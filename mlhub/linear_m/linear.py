@@ -2,21 +2,36 @@ import logging
 import numpy as np
 import pandas as pd
 
+from mlhub.metrics.regression_metrics import RegressionMetric
+
 
 class MyLineReg:
     """
     Class for training linear regression using gradient descent.
 
     Parameters:
-    - learning_rate (float): Learning rate for gradient descent (default 0.1).
-    - n_iter (int): Number of iterations for gradient descent (default 100).
-    - weights (array-like): Model weights. Default is None (i.e., all weights are set to 1).
+    - learning_rate (float): Learning rate for gradient descent
+        Default is 0.1.
+    - n_iter (int): Number of iterations for gradient descent
+        Default is 100.
+    - weights (array-like): Model weights.
+        Default is None (i.e., all weights are set to 1).
+    - metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
+        Default is None (i.e., no metric is calculated).
     """
 
-    def __init__(self, n_iter: int = 100, learning_rate: float = 0.1, weights: np.array = None) -> None:
+    def __init__(
+        self,
+        n_iter: int = 100,
+        learning_rate: float = 0.1,
+        weights: np.array = None,
+        metric: str = None,
+    ) -> None:
         self.n_iter = n_iter
         self.learning_rate = learning_rate
         self.weights = weights
+        self.metric = metric
+        self._best_score = None
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
 
@@ -54,8 +69,16 @@ class MyLineReg:
             # Update weights using gradient descent
             self.weights -= self.learning_rate * gradient
 
+            metric_text = ""
             if verbose and i % verbose == 0:
-                self.logger.info(f"{i} | loss: {np.mean(mse_error ** 2)}")
+                if self.metric is not None:
+                    metric_text = f"| {self.metric}: {RegressionMetric._calculate_metric(metric_name=self.metric, y_true=y, y_predict=self._make_prediction(X, self.weights))}"
+                self.logger.info(f"{i} | loss: {np.mean(mse_error ** 2)} {metric_text}")
+
+        if self.metric is not None:
+            self._best_score = RegressionMetric._calculate_metric(
+                metric_name=self.metric, y_true=y, y_predict=self._make_prediction(X, self.weights)
+            )
 
     def _add_base(self, X):
         """Append a column of ones to the feature matrix"""
@@ -94,5 +117,16 @@ class MyLineReg:
         Returns:
         - array-like: Predicted target variable values.
         """
-        self._add_base(X)
+        if self.weights is None:
+            raise ValueError("Weights are not initialized. Please train the model first.")
+        if X.shape[1] < self.weights.shape[1]:
+            self._add_base(X)
         return self._make_prediction(X.values, self.weights)
+
+    def get_best_score(self):
+        """
+        Return the last value of the metric after the model has been trained.
+        Returns:
+        - float: Last value of the metric.
+        """
+        return self._best_score
