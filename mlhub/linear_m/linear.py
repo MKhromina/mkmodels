@@ -1,7 +1,9 @@
 import logging
 import numpy as np
 import pandas as pd
+from types import FunctionType
 
+from mlhub.regularization import Regularization
 from mlhub.metrics.regression_metrics import RegressionMetric
 
 
@@ -18,6 +20,8 @@ class MyLineReg:
         Default is None (i.e., all weights are set to 1).
     - metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
         Default is None (i.e., no metric is calculated).
+    - reg: (str): Regularization type.
+        Default is None (i.e., no regularization)
     """
 
     def __init__(
@@ -26,11 +30,17 @@ class MyLineReg:
         learning_rate: float = 0.1,
         weights: np.array = None,
         metric: str = None,
+        reg: str = None,
+        l1_coef: float = 0,
+        l2_coef: float = 0,
     ) -> None:
         self.n_iter = n_iter
         self.learning_rate = learning_rate
         self.weights = weights
         self.metric = metric
+        self.reg = reg
+        self.l1_coef = l1_coef
+        self.l2_coef = l2_coef
         self._best_score = None
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
@@ -65,9 +75,21 @@ class MyLineReg:
 
             # Compute the gradient
             gradient = 2 * np.dot((y_pred - y), X) / X.shape[0]
+            if self.reg in ["l1", "elastic", "elasticnet"]:
+                gradient += Regularization(alpha=self.l1_coef).l1(self.weights)
+            if self.reg in ["l2", "elastic", "elasticnet"]:
+                gradient += Regularization(alpha=self.l2_coef).l2(self.weights)
+
+            if self.reg is not None and self.reg not in ["l1", "l2", "elastic", "elasticnet"]:
+                ValueError(
+                    "Invalid regularization type. Please choose from: 'l1', 'l2', 'elastic', or 'elasticnet'"
+                )
 
             # Update weights using gradient descent
-            self.weights -= self.learning_rate * gradient
+            if isinstance(self.learning_rate, (int, float)):
+                self.weights -= self.learning_rate * gradient
+            if isinstance(self.learning_rate, FunctionType):
+                self.weights -= self.learning_rate(i + 1) * gradient
 
             metric_text = ""
             if verbose and i % verbose == 0:
@@ -105,7 +127,7 @@ class MyLineReg:
         """
         if self.weights is None:
             raise ValueError("Weights are not initialized.")
-        return self.weights[:1]
+        return self.weights[1:]
 
     def predict(self, X: pd.DataFrame):
         """
