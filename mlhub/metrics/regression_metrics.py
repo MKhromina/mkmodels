@@ -1,8 +1,9 @@
 import numpy as np
 from types import MappingProxyType
+from mlhub.metrics.base_metric import BaseMetric
 
 
-class RegressionMetric:
+class RegressionMetric(BaseMetric):
     def __init__(self) -> None:
         # Create a dictionary where keys are metric names and values are corresponding methods
         self._metrics_dict = MappingProxyType(
@@ -16,7 +17,8 @@ class RegressionMetric:
         )
 
     @staticmethod
-    def mse(y_true: np.array, y_predict: np.array):
+    @BaseMetric.check_length
+    def mse(y_true: np.array, y_predict: np.array) -> float:
         """
         Compute the mean squared error (MSE) between true and predicted values.
 
@@ -25,12 +27,13 @@ class RegressionMetric:
         - y_pred (array-like): Predicted target values.
 
         Returns:
-        - float: Mean squared error.
+            float: Mean squared error.
         """
         return np.mean((y_true - y_predict) ** 2)
 
     @staticmethod
-    def mae(y_true: np.array, y_predict: np.array):
+    @BaseMetric.check_length
+    def mae(y_true: np.array, y_predict: np.array) -> float:
         """
         Compute the mean absolute error (MAE) between true and predicted values.
 
@@ -39,12 +42,13 @@ class RegressionMetric:
         - y_pred (array-like): Predicted target values.
 
         Returns:
-        - float: Mean absolute error.
+            float: Mean absolute error.
         """
         return np.mean(np.abs(y_true - y_predict))
 
     @staticmethod
-    def rmse(y_true: np.array, y_predict: np.array):
+    @BaseMetric.check_length
+    def rmse(y_true: np.array, y_predict: np.array) -> float:
         """
         Root Mean Squared Error (RMSE) between true and predicted values.
 
@@ -53,12 +57,13 @@ class RegressionMetric:
         - y_pred (array-like): Predicted target values.
 
         Returns:
-        - float: Mean squared error.
+            float: Mean squared error.
         """
         return np.power(np.mean(np.power((y_true - y_predict), 2)), 0.5)
 
     @staticmethod
-    def r2(y_true: np.array, y_predict: np.array):
+    @BaseMetric.check_length
+    def r2(y_true: np.array, y_predict: np.array) -> float:
         """
         Coefficient of determination (R^2) between true and predicted values.
 
@@ -67,14 +72,15 @@ class RegressionMetric:
         - y_pred (array-like): Predicted target values.
 
         Returns:
-        - float: coefficient of determination.
+            float: coefficient of determination.
         """
         return 1 - (
             sum(np.power((y_true - y_predict), 2)) / sum(np.power((y_true - np.mean(y_true)), 2))
         )
 
     @staticmethod
-    def mape(y_true: np.array, y_predict: np.array):
+    @BaseMetric.check_length
+    def mape(y_true: np.array, y_predict: np.array) -> float:
         """
         Mean Absolute Percentage Error (MAPE) between true and predicted values.
 
@@ -83,19 +89,6 @@ class RegressionMetric:
         - y_pred (array-like): Predicted target values.
 
         Returns:
-        - float: Mean Absolute Percentage Error.
+            float: Mean Absolute Percentage Error.
         """
         return 100 * np.mean(np.abs((y_true - y_predict) / y_true))
-
-    @staticmethod
-    def _calculate_metric(metric_name: str, y_true: np.array, y_predict: np.array):
-        # Get a metric by key
-        if metric_name not in RegressionMetric()._metrics_dict:
-            raise ValueError(f"Unknown metric: {metric_name}")
-
-        # Call the corresponding function to calculate the metric
-        metric_func = RegressionMetric()._metrics_dict[metric_name]
-        return metric_func(y_true=y_true, y_predict=y_predict)
-
-
-bl
