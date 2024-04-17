@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from mlhub.linear_m.base_linear import BaseRegression
+from mlhub.linear_m.base_linear import BaseLinear
 from mlhub.metrics.classification_metrics import ClassificationMetric
 
 
-class MyLogReg(BaseRegression):
+class MyLogReg(BaseLinear):
     """
     Class for training logistic regression using gradient descent.
 

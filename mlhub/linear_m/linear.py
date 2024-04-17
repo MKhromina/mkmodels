@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
 
-from mlhub.linear_m.base_linear import BaseRegression
+from mlhub.linear_m.base_linear import BaseLinear
 from mlhub.metrics.regression_metrics import RegressionMetric
 
 
-class MyLineReg(BaseRegression):
+class MyLineReg(BaseLinear):
     """
     Class for training linear regression using gradient descent.
 

@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from mlhub.regularization import Regularization
 
 
-class BaseRegression(ABC):
+class BaseLinear(ABC):
     """
     Abstract class linear models using gradient descent.
 
