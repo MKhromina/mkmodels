@@ -32,14 +32,14 @@ class ClassificationMetric(BaseMetric):
         Get the confusion matrix.
 
         Parameters:
-        - y_true: True labels.
-        - y_predict: Predicted labels.
+            - y_true: True labels.
+            - y_predict: Predicted labels.
 
         Returns:
             pd.DataFrame: Confusion matrix.
         """
-        y_true = BaseMetric._convert_dtype(y_true)
-        y_predict = BaseMetric._convert_dtype(y_predict)
+        y_true = BaseMetric._convert_dtype_to_series(y_true)
+        y_predict = BaseMetric._convert_dtype_to_series(y_predict)
         confusion_matrix = pd.crosstab(y_true, y_predict)
         return confusion_matrix
 
@@ -50,8 +50,8 @@ class ClassificationMetric(BaseMetric):
         Compute the accuracy metric.
 
         Parameters:
-        - y_true: True labels.
-        - y_predict: Predicted labels.
+            - y_true: True labels.
+            - y_predict: Predicted labels.
 
         Returns:
             float: Accuracy score.
@@ -78,9 +78,9 @@ class ClassificationMetric(BaseMetric):
         Compute the precision metric.
 
         Parameters:
-        - y_true: True labels.
-        - y_predict: Predicted labels.
-        - positive_label: Value representing the positive class. Default is 1.
+            - y_true: True labels.
+            - y_predict: Predicted labels.
+            - positive_label: Value representing the positive class. Default is 1.
 
         Returns:
             float: Precision score.
@@ -101,9 +101,9 @@ class ClassificationMetric(BaseMetric):
         Compute the recall metric.
 
         Parameters:
-        - y_true: True labels.
-        - y_predict: Predicted labels.
-        - positive_label: Value representing the positive class. Default is 1.
+            - y_true: True labels.
+            - y_predict: Predicted labels.
+            - positive_label: Value representing the positive class. Default is 1.
 
         Returns:
             float: Recall score.
@@ -126,10 +126,10 @@ class ClassificationMetric(BaseMetric):
         Compute the F-score metric.
 
         Parameters:
-        - y_true: True labels.
-        - y_predict: Predicted labels.
-        - b: Beta parameter for balancing precision and recall. Default is 1.
-        - positive_label: Value representing the positive class. Default is 1.
+            - y_true: True labels.
+            - y_predict: Predicted labels.
+            - b: Beta parameter for balancing precision and recall. Default is 1.
+            - positive_label: Value representing the positive class. Default is 1.
 
         Returns:
             float: F-score.
@@ -155,8 +155,8 @@ class ClassificationMetric(BaseMetric):
         Compute the ROC AUC score for binary classification using pandas DataFrames.
 
         Parameters:
-        - y_true: pd.Series containing true binary labels (0 or 1).
-        - y_predict: pd.Series containing predicted scores (probability estimates).
+            - y_true: pd.Series containing true binary labels (0 or 1).
+            - y_predict: pd.Series containing predicted scores (probability estimates).
 
         Returns:
             float: ROC AUC score.

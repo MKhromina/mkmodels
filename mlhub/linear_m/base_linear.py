@@ -13,31 +13,31 @@ class BaseLinear(ABC):
     Abstract class linear models using gradient descent.
 
     Parameters:
-    - learning_rate (float): Learning rate for gradient descent
-        Default is 0.1.
-    - n_iter (int): Number of iterations for gradient descent
-        Default is 100.
-    - weights (array-like): Model weights.
-        Default is None (i.e., all weights are set to 1).
-    - metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
-        Default is None (i.e., no metric is calculated).
-    - reg: (str): Regularization type.
-        Default is None (i.e., no regularization)
-    - l1_coef (float): Regularization strength
-        Default is 0
-    - l2_coef (float): Regularization strength
-        Default is 0
-    - sgd_sample (float): Number of samples that will be used at each training iteration. Can accept either whole numbers or fractions from 0.0 to 1.0.
-        Default is None.  (i.e., all samples are used).
-    - random_state (float): Any number for reproducibility of the result
-        Default is 42
+        - learning_rate (float): Learning rate for gradient descent
+            Default is 0.1.
+        - n_iter (int): Number of iterations for gradient descent
+            Default is 100.
+        - weights (array-like): Model weights.
+            Default is None (i.e., all weights are set to 1).
+        - metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
+            Default is None (i.e., no metric is calculated).
+        - reg: (str): Regularization type.
+            Default is None (i.e., no regularization)
+        - l1_coef (float): Regularization strength
+            Default is 0
+        - l2_coef (float): Regularization strength
+            Default is 0
+        - sgd_sample (float): Number of samples that will be used at each training iteration. Can accept either whole numbers or fractions from 0.0 to 1.0.
+            Default is None.  (i.e., all samples are used).
+        - random_state (float): Any number for reproducibility of the result
+            Default is 42
     """
 
     def __init__(
         self,
         n_iter: int = 100,
         learning_rate: float = 0.1,
-        weights: np.array = None,
+        weights: np.ndarray = None,
         metric: str = None,
         reg: str = None,
         l1_coef: float = 0,
@@ -71,7 +71,7 @@ class BaseLinear(ABC):
         Initialize weights if they are not already defined.
 
         Parameters:
-            size (int): The size of the weights to initialize.
+            - size (int): The size of the weights to initialize.
         """
 
         if self.weights is None:
@@ -85,9 +85,9 @@ class BaseLinear(ABC):
         """Calculate the gradient of the loss function with respect to the weights.
 
         Parameters:
-            X (np.ndarray): Feature matrix.
-            y_true (np.ndarray): True target values.
-            y_pred (np.ndarray): Predicted target values.
+            - X (np.ndarray): Feature matrix.
+            - y_true (np.ndarray): True target values.
+            - y_pred (np.ndarray): Predicted target values.
 
         Returns:
             np.ndarray: Gradient of the loss function with respect to the weights.
@@ -101,7 +101,7 @@ class BaseLinear(ABC):
         Apply regularization to the gradient.
 
         Parameters:
-            gradient (np.ndarray): The gradient computed for the current iteration.
+            - gradient (np.ndarray): The gradient computed for the current iteration.
 
         Returns:
             np.ndarray: The gradient with regularization applied.
@@ -124,9 +124,9 @@ class BaseLinear(ABC):
         Compute the gradient of the loss function with respect to the weights.
 
         Parameters:
-            X (np.ndarray): The input data.
-            y_true (np.ndarray): The target labels.
-            y_pred (np.ndarray): The predicted labels.
+            - X (np.ndarray): The input data.
+            - y_true (np.ndarray): The target labels.
+            - y_pred (np.ndarray): The predicted labels.
 
         Returns:
             np.ndarray: The computed gradient.
@@ -142,8 +142,8 @@ class BaseLinear(ABC):
         Update weights using gradient descent.
 
         Parameters:
-            gradient (np.ndarray): The gradient computed for the current iteration.
-            i (int): The current iteration index.
+            - gradient (np.ndarray): The gradient computed for the current iteration.
+            - i (int): The current iteration index.
 
         Returns:
             None
@@ -175,11 +175,12 @@ class BaseLinear(ABC):
         Print training progress including loss and optional metric.
 
         Parameters:
-            i (int): The current iteration index.
-            y_true (np.ndarray): The target labels.
-            y_predict (np.ndarray): The input data.
-            error (np.ndarray): Loss function.
-            verbose (int, optional): If provided, specifies the frequency of printing progress. Defaults to 1.
+            - i (int): The current iteration index.
+            - y_true (np.ndarray): The target labels.
+            - y_predict (np.ndarray): The input data.
+            - error (np.ndarray): Loss function.
+            - verbose (int, optional): If provided, specifies the frequency of printing progress. 
+                Defaults to 1.
 
         """
         metric_text = ""
@@ -189,15 +190,15 @@ class BaseLinear(ABC):
                 metric_text = self._get_metric(y_true=y_true, y_predict=y_predict, **kwargs)
             self.logger.info(f"{i} | loss: {error} {metric_text}")
 
-    def _make_prediction(self, X: np.array, W: np.array = None) -> np.array:
+    def _make_prediction(self, X: np.ndarray, W: np.ndarray = None) -> np.ndarray:
         """
         Make predictions using the calculated weights.
         Parameters:
-        - X (array-like): Features as a pandas DataFrame.
-        - W (array-like): Model weights.
+            - X (array-like): Features as a pandas DataFrame.
+            - W (array-like): Model weights.
 
         Returns:
-        - array-like: Predicted target variable values.
+            array-like: Predicted target variable values.
         """
         if W is None and self.weights is not None:
             W = self.weights
@@ -215,8 +216,8 @@ class BaseLinear(ABC):
         Form a mini-batch of data.
 
         Args:
-            X (DataFrame or array-like): Input features.
-            y_true (Series or array-like): True labels.
+            - X (DataFrame or array-like): Input features.
+            - y_true (Series or array-like): True labels.
 
         Returns:
             X_batch (DataFrame or array-like): Mini-batch of input features.
@@ -247,19 +248,25 @@ class BaseLinear(ABC):
     def _compute_error(self, y_true: np.ndarray, y_predict: np.ndarray):
         pass
 
-    def fit(self, X: pd.DataFrame, y_true: pd.Series, verbose: int = False) -> None:
+    def _validate_iterations_number(self):
         """
-        Train linear model on the given data.
-
-        Parameters:
-        - X (DataFrame): Features as a pandas DataFrame.
-        - y (Series): Target variable as a pandas Series.
-        - verbose (int or bool): Indicates at which iteration to print logs. Default is False (i.e., nothing is printed).
+        Validation of number iteration
         """
         if self.n_iter <= 0:
             self.logger.warning("Number of iterations is less than 0. No training will be performed.")
             return
 
+    def fit(self, X: pd.DataFrame, y_true: pd.Series, verbose: int = False) -> None:
+        """
+        Train linear model on the given data.
+
+        Parameters:
+            - X (DataFrame): Features as a pandas DataFrame.
+            - y (Series): Target variable as a pandas Series.
+            - verbose (int or bool): Indicates at which iteration to print logs. 
+                Default is False (i.e., nothing is printed).
+        """
+        self._validate_iterations_number()        
         random.seed(self.random_state)
         self._add_base(X=X)
         self._initialize_weights(size=X.shape[1])
@@ -287,7 +294,7 @@ class BaseLinear(ABC):
         Return model coefficients, starting from the second value.
 
         Returns:
-        - array-like: Model coefficients starting from the second value.
+            array-like: Model coefficients starting from the second value.
         """
         if self.weights is None:
             raise ValueError("Weights are not initialized.")
@@ -298,10 +305,10 @@ class BaseLinear(ABC):
         Make predictions using the trained linear  model.
 
         Parameters:
-        - X (DataFrame): Features as a pandas DataFrame.
+            - X (DataFrame): Features as a pandas DataFrame.
 
         Returns:
-        - array-like: Predicted target variable values.
+            array-like: Predicted target variable values.
         """
         if self.weights is None:
             raise ValueError("Weights are not initialized. Please train the model first.")
@@ -322,6 +329,6 @@ class BaseLinear(ABC):
         """
         Return the last value of the metric after the model has been trained.
         Returns:
-        - float: Last value of the metric.
+            float: Last value of the metric.
         """
         return self._best_score

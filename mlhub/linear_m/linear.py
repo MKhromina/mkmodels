@@ -10,23 +10,23 @@ class MyLineReg(BaseLinear):
     Class for training linear regression using gradient descent.
 
     Parameters:
-    - learning_rate (float): Learning rate for gradient descent
+    learning_rate (float): Learning rate for gradient descent
         Default is 0.1.
-    - n_iter (int): Number of iterations for gradient descent
+    n_iter (int): Number of iterations for gradient descent
         Default is 100.
-    - weights (array-like): Model weights.
+    weights (array-like): Model weights.
         Default is None (i.e., all weights are set to 1).
-    - metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
+    metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
         Default is None (i.e., no metric is calculated).
-    - reg: (str): Regularization type.
+    reg: (str): Regularization type.
         Default is None (i.e., no regularization)
-    - l1_coef (float): Regularization strength
+    l1_coef (float): Regularization strength
         Default is 0
-    - l2_coef (float): Regularization strength
+    l2_coef (float): Regularization strength
         Default is 0
-    - sgd_sample (float): Number of samples that will be used at each training iteration. Can accept either whole numbers or fractions from 0.0 to 1.0.
+    sgd_sample (float): Number of samples that will be used at each training iteration. Can accept either whole numbers or fractions from 0.0 to 1.0.
         Default is None.  (i.e., all samples are used).
-    - random_state (float): Any number for reproducibility of the result
+    random_state (float): Any number for reproducibility of the result
         Default is 42
     """
 
@@ -34,7 +34,7 @@ class MyLineReg(BaseLinear):
         self,
         n_iter: int = 100,
         learning_rate: float = 0.1,
-        weights: np.array = None,
+        weights: np.ndarray = None,
         metric: str = None,
         reg: str = None,
         l1_coef: float = 0,
@@ -72,9 +72,9 @@ class MyLineReg(BaseLinear):
         Calculate the gradient of the loss function with respect to the weights.
 
         Parameters:
-            X (np.ndarray): Feature matrix.
-            y_true (np.ndarray): True target values.
-            y_pred (np.ndarray): Predicted target values.
+            - X (np.ndarray): Feature matrix.
+            - y_true (np.ndarray): True target values.
+            - y_pred (np.ndarray): Predicted target values.
 
         Returns:
             np.ndarray: Gradient of the loss function with respect to the weights.
@@ -89,15 +89,15 @@ class MyLineReg(BaseLinear):
         Get the value of the specified metric.
 
         Parameters:
-        - X (DataFrame): Features as a pandas DataFrame.
-        - y_true (Series): True target labels.
+            - X (DataFrame): Features as a pandas DataFrame.
+            - y_true (Series): True target labels.
 
         Returns:
-        - str: Text representation of the metric value.
+            str: Text representation of the metric value.
         """
         metric_instance = RegressionMetric()
         metric = metric_instance._calculate_metric(
-            metric_name=self.metric, y_true=y_true, y_predict=y_predict
+            metric_name=self.metric, true_value=y_true, predict_value=y_predict
         )
         metric_text = f"| {self.metric}: {metric}"
         return metric_text
@@ -107,13 +107,13 @@ class MyLineReg(BaseLinear):
         Update the best score if a metric is specified.
 
         Parameters:
-            X (np.ndarray): The input data.
-            y_true (np.ndarray): The true target labels.
+            - X (np.ndarray): The input data.
+            - y_true (np.ndarray): The true target labels.
         """
         if self.metric is not None:
             metric_instance = RegressionMetric()
             self._best_score = metric_instance._calculate_metric(
                 metric_name=self.metric,
-                y_true=y_true,
-                y_predict=self._make_prediction(X=X, W=self.weights),
+                true_value=y_true,
+                predict_value=self._make_prediction(X=X, W=self.weights),
             )
