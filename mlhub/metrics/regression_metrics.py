@@ -18,13 +18,13 @@ class RegressionMetric(BaseMetric):
 
     @staticmethod
     @BaseMetric.check_length
-    def mse(y_true: np.array, y_predict: np.array) -> float:
+    def mse(y_true: np.ndarray, y_predict: np.ndarray) -> float:
         """
         Compute the mean squared error (MSE) between true and predicted values.
 
         Parameters:
-        - y_true (array-like): True target values.
-        - y_pred (array-like): Predicted target values.
+            - y_true (array-like): True target values.
+            - y_pred (array-like): Predicted target values.
 
         Returns:
             float: Mean squared error.
@@ -33,13 +33,13 @@ class RegressionMetric(BaseMetric):
 
     @staticmethod
     @BaseMetric.check_length
-    def mae(y_true: np.array, y_predict: np.array) -> float:
+    def mae(y_true: np.ndarray, y_predict: np.ndarray) -> float:
         """
         Compute the mean absolute error (MAE) between true and predicted values.
 
         Parameters:
-        - y_true (array-like): True target values.
-        - y_pred (array-like): Predicted target values.
+            - y_true (array-like): True target values.
+            - y_pred (array-like): Predicted target values.
 
         Returns:
             float: Mean absolute error.
@@ -48,13 +48,13 @@ class RegressionMetric(BaseMetric):
 
     @staticmethod
     @BaseMetric.check_length
-    def rmse(y_true: np.array, y_predict: np.array) -> float:
+    def rmse(y_true: np.ndarray, y_predict: np.ndarray) -> float:
         """
         Root Mean Squared Error (RMSE) between true and predicted values.
 
         Parameters:
-        - y_true (array-like): True target values.
-        - y_pred (array-like): Predicted target values.
+            - y_true (array-like): True target values.
+            - y_pred (array-like): Predicted target values.
 
         Returns:
             float: Mean squared error.
@@ -63,13 +63,13 @@ class RegressionMetric(BaseMetric):
 
     @staticmethod
     @BaseMetric.check_length
-    def r2(y_true: np.array, y_predict: np.array) -> float:
+    def r2(y_true: np.ndarray, y_predict: np.ndarray) -> float:
         """
         Coefficient of determination (R^2) between true and predicted values.
 
         Parameters:
-        - y_true (array-like): True target values.
-        - y_pred (array-like): Predicted target values.
+            - y_true (array-like): True target values.
+            - y_pred (array-like): Predicted target values.
 
         Returns:
             float: coefficient of determination.
@@ -80,13 +80,13 @@ class RegressionMetric(BaseMetric):
 
     @staticmethod
     @BaseMetric.check_length
-    def mape(y_true: np.array, y_predict: np.array) -> float:
+    def mape(y_true: np.ndarray, y_predict: np.ndarray) -> float:
         """
         Mean Absolute Percentage Error (MAPE) between true and predicted values.
 
         Parameters:
-        - y_true (array-like): True target values.
-        - y_pred (array-like): Predicted target values.
+            - y_true (array-like): True target values.
+            - y_pred (array-like): Predicted target values.
 
         Returns:
             float: Mean Absolute Percentage Error.

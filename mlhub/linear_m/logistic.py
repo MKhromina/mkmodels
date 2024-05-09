@@ -9,31 +9,31 @@ class MyLogReg(BaseLinear):
     Class for training logistic regression using gradient descent.
 
     Parameters:
-    - learning_rate (float): Learning rate for gradient descent
-        Default is 0.1.
-    - n_iter (int): Number of iterations for gradient descent
-        Default is 100.
-    - weights (array-like): Model weights.
-        Default is None (i.e., all weights are set to 1).
-    - metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
-        Default is None (i.e., no metric is calculated).
-    - reg: (str): Regularization type.
-        Default is None (i.e., no regularization)
-    - l1_coef (float): Regularization strength
-        Default is 0
-    - l2_coef (float): Regularization strength
-        Default is 0
-    - sgd_sample (float): Number of samples that will be used at each training iteration. Can accept either whole numbers or fractions from 0.0 to 1.0.
-        Default is None.  (i.e., all samples are used).
-    - random_state (float): Any number for reproducibility of the result
-        Default is 42
+        - learning_rate (float): Learning rate for gradient descent
+            Default is 0.1.
+        - n_iter (int): Number of iterations for gradient descent
+            Default is 100.
+        - weights (array-like): Model weights.
+            Default is None (i.e., all weights are set to 1).
+        - metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
+            Default is None (i.e., no metric is calculated).
+        - reg: (str): Regularization type.
+            Default is None (i.e., no regularization)
+        - l1_coef (float): Regularization strength
+            Default is 0
+        - l2_coef (float): Regularization strength
+            Default is 0
+        - sgd_sample (float): Number of samples that will be used at each training iteration. Can accept either whole numbers or fractions from 0.0 to 1.0.
+            Default is None.  (i.e., all samples are used).
+        - random_state (float): Any number for reproducibility of the result
+            Default is 42
     """
 
     def __init__(
         self,
         n_iter: int = 100,
         learning_rate: float = 0.1,
-        weights: np.array = None,
+        weights: np.ndarray = None,
         metric: str = None,
         reg: str = None,
         l1_coef: float = 0,
@@ -53,16 +53,16 @@ class MyLogReg(BaseLinear):
             random_state=random_state,
         )
 
-    def _make_prediction(self, X: pd.DataFrame, W: np.array):
+    def _make_prediction(self, X: pd.DataFrame, W: np.ndarray):
         """
         Make predictions using logistic regression.
 
         Parameters:
-            X (pd.DataFrame): Input features.
-            W (np.array): Model weights.
+            - X (pd.DataFrame): Input features.
+            - W (np.ndarray): Model weights.
 
         Returns:
-            np.array: Predicted probabilities.
+            np.ndarray: Predicted probabilities.
         """
         # Calculate the linear combination of features and weights
         z = super()._make_prediction(X=X, W=self.weights)
@@ -74,9 +74,9 @@ class MyLogReg(BaseLinear):
         Compute the logistic loss between predicted and actual values.
 
         Parameters:
-            y_pred (pd.Series): Predicted probabilities.
-            y_batch (pd.Series): Actual target values.
-            eps (float): Small value to avoid numerical instability.
+            - y_pred (pd.Series): Predicted probabilities.
+            - y_batch (pd.Series): Actual target values.
+            - eps (float): Small value to avoid numerical instability.
 
         Returns:
             float: Logistic loss.
@@ -89,15 +89,15 @@ class MyLogReg(BaseLinear):
         Get the value of the specified metric.
 
         Parameters:
-        - X (DataFrame): Features as a pandas DataFrame.
-        - y_true (Series): True target labels.
+            - X (DataFrame): Features as a pandas DataFrame.
+            - y_true (Series): True target labels.
 
         Returns:
-        - str: Text representation of the metric value.
+            str: Text representation of the metric value.
         """
         metric_instance = ClassificationMetric()
         metric_value = metric_instance._calculate_metric(
-            metric_name=self.metric, y_true=y_true, y_predict=y_predict
+            metric_name=self.metric, true_value=y_true, predict_value=y_predict
         )
         metric_text = f"| {self.metric}: {metric_value}"
         return metric_text
@@ -107,22 +107,22 @@ class MyLogReg(BaseLinear):
         Update the best score if a metric is specified.
 
         Parameters:
-            X (np.ndarray): The input data.
-            y_true (np.ndarray): The true target labels.
+            - X (np.ndarray): The input data.
+            - y_true (np.ndarray): The true target labels.
         """
         if isinstance(self.metric, str):
             metric_instance = ClassificationMetric()
             if self.metric != "roc_auc":
                 self._best_score = metric_instance._calculate_metric(
                     metric_name=self.metric,
-                    y_true=y_true,
-                    y_predict=self.predict(X=X),
+                    true_value=y_true,
+                    predict_value=self.predict(X=X),
                 )
             elif self.metric == "roc_auc":
                 self._best_score = metric_instance._calculate_metric(
                     metric_name=self.metric,
-                    y_true=y_true,
-                    y_predict=self.predict_proba(X=X),
+                    true_value=y_true,
+                    predict_value=self.predict_proba(X=X),
                 )
         elif self.metric is None:
             pass
@@ -134,23 +134,23 @@ class MyLogReg(BaseLinear):
         Predicts class probabilities for the input data.
 
         Parameters:
-        - X (array-like): Input data.
+            - X (array-like): Input data.
 
         Returns:
-        - array-like: Probabilities of belonging to classes.
+            array-like: Probabilities of belonging to classes.
         """
         return super().predict(X=X)
 
-    def predict(self, X, trashed=0.5):
+    def predict(self, X, threshold=0.5):
         """
         Predicts class labels for the input data.
 
         Parameters:
-        - X (array-like): Input data.
-        - threshold (float, optional): Probability threshold for classification. Default is 0.5.
+            - X (array-like): Input data.
+            - threshold (float, optional): Probability threshold for classification. Default is 0.5.
 
         Returns:
-        - array-like: Class labels.
+            array-like: Class labels.
         """
         res = self.predict_proba(X=X)
-        return res > trashed
+        return (res > threshold).astype(int)
