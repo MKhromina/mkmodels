@@ -4,7 +4,7 @@ requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "mkmodels"
+name = "mlhub"
 version = "0.1.0"
 description = "MLHubMK is a repository dedicated to machine learning models implemented from scratch."
 readme = "README.md"
@@ -45,6 +45,9 @@ pre-commit = "^2.14.0"
 nbdime = "^3.1.0"
 envyaml = "^1.9.210927"
 ipykernel = "^6.29.4"
+scikit-learn = "^1.7.1"
+matplotlib = "^3.10.5"
+seaborn = "^0.13.2"
 
 
 [tool.black]
