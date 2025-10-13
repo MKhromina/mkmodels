@@ -1,9 +1,9 @@
 import logging
 import random
+from abc import ABC, abstractmethod
+
 import numpy as np
 import pandas as pd
-from types import FunctionType
-from abc import ABC, abstractmethod
 
 from mlhub.regularization import Regularization
 
@@ -19,7 +19,8 @@ class BaseLinear(ABC):
             Default is 100.
         - weights (array-like): Model weights.
             Default is None (i.e., all weights are set to 1).
-        - metric (str): Metric for evaluation during training. Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
+        - metric (str): Metric for evaluation during training.
+                Options: 'mae', 'mse', 'rmse', 'mape', 'r2'.
             Default is None (i.e., no metric is calculated).
         - reg: (str): Regularization type.
             Default is None (i.e., no regularization)
@@ -27,7 +28,8 @@ class BaseLinear(ABC):
             Default is 0
         - l2_coef (float): Regularization strength
             Default is 0
-        - sgd_sample (float): Number of samples that will be used at each training iteration. Can accept either whole numbers or fractions from 0.0 to 1.0.
+        - sgd_sample (float): Number of samples that will be used at each training iteration.
+                Can accept either whole numbers or fractions from 0.0 to 1.0.
             Default is None.  (i.e., all samples are used).
         - random_state (float): Any number for reproducibility of the result
             Default is 42
@@ -55,6 +57,7 @@ class BaseLinear(ABC):
         self.sgd_sample = sgd_sample
         self.random_state = random_state
         self._best_score = None
+        self._is_trained = False
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
 
@@ -63,6 +66,8 @@ class BaseLinear(ABC):
 
     def _add_base(self, X: pd.DataFrame) -> None:
         """Append a column of ones to the feature matrix"""
+        if "base_0" in X.columns:
+            return
         X.insert(0, "base_0", 1)
         self.logger.info("Added column with fixed unit")
 
@@ -106,10 +111,10 @@ class BaseLinear(ABC):
         Returns:
             np.ndarray: The gradient with regularization applied.
         """
-        if self.reg in ["l1", "elastic", "elasticnet"]:
+        if self.reg in ["l1", "elastic", "elasticnet"] or self.l1_coef != 0:
             gradient += Regularization(alpha=self.l1_coef).l1(self.weights)
 
-        if self.reg in ["l2", "elastic", "elasticnet"]:
+        if self.reg in ["l2", "elastic", "elasticnet"] or self.l2_coef != 0:
             gradient += Regularization(alpha=self.l2_coef).l2(self.weights)
 
         if self.reg is not None and self.reg not in ["l1", "l2", "elastic", "elasticnet"]:
@@ -152,15 +157,16 @@ class BaseLinear(ABC):
         if isinstance(self.learning_rate, (int, float)):
             # If learning rate is a constant
             self.weights -= self.learning_rate * gradient
-        elif isinstance(self.learning_rate, FunctionType):
+        elif callable(self.learning_rate):
             # If learning rate is a function of the iteration index
             self.weights -= self.learning_rate(i + 1) * gradient
         else:
             raise TypeError("Learning rate must be either a constant (integer or float) or a function.")
 
     @abstractmethod
-    def _get_metric(self, y_true: np.ndarray, y_predict: np.ndarray, **kwargs):
-        return ""
+    def _get_metric(self, y_true: np.ndarray, y_predict: np.ndarray, **kwargs) -> str:
+        """Return metric name or computed value."""
+        pass
 
     def _print_progress(
         self,
@@ -179,7 +185,7 @@ class BaseLinear(ABC):
             - y_true (np.ndarray): The target labels.
             - y_predict (np.ndarray): The input data.
             - error (np.ndarray): Loss function.
-            - verbose (int, optional): If provided, specifies the frequency of printing progress. 
+            - verbose (int, optional): If provided, specifies the frequency of printing progress.
                 Defaults to 1.
 
         """
@@ -263,10 +269,11 @@ class BaseLinear(ABC):
         Parameters:
             - X (DataFrame): Features as a pandas DataFrame.
             - y (Series): Target variable as a pandas Series.
-            - verbose (int or bool): Indicates at which iteration to print logs. 
+            - verbose (int or bool): Indicates at which iteration to print logs.
                 Default is False (i.e., nothing is printed).
         """
-        self._validate_iterations_number()        
+        X = X.copy()
+        self._validate_iterations_number()
         random.seed(self.random_state)
         self._add_base(X=X)
         self._initialize_weights(size=X.shape[1])
@@ -288,7 +295,17 @@ class BaseLinear(ABC):
             self._print_progress(i=i, y_true=y_batch, y_predict=y_pred, error=error, verbose=verbose)
 
             self._add_best_score(X=X_batch, y_true=y_batch)
+            self._is_trained = True
 
+    def requires_fit(method):
+        """Decorator: Checks if the model is trained before calling the method."""
+        def wrapper(self, *args, **kwargs):
+            if not getattr(self, "_is_trained", False):
+                raise ValueError("Please train the model first with `.fit()`.")
+            return method(self, *args, **kwargs)
+        return wrapper
+
+    @requires_fit
     def get_coef(self):
         """
         Return model coefficients, starting from the second value.
@@ -296,10 +313,9 @@ class BaseLinear(ABC):
         Returns:
             array-like: Model coefficients starting from the second value.
         """
-        if self.weights is None:
-            raise ValueError("Weights are not initialized.")
         return self.weights[1:]
 
+    @requires_fit
     def predict(self, X: pd.DataFrame):
         """
         Make predictions using the trained linear  model.
@@ -310,14 +326,14 @@ class BaseLinear(ABC):
         Returns:
             array-like: Predicted target variable values.
         """
-        if self.weights is None:
-            raise ValueError("Weights are not initialized. Please train the model first.")
+        X = X.copy()
 
         expected_num_features = len(self.weights)
 
         if X.shape[1] not in {expected_num_features - 1, expected_num_features}:
             raise ValueError(
-                f"Incorrect number of features in X. Expected {expected_num_features} or {expected_num_features - 1}, got {X.shape[1]}."
+                f"Incorrect number of features in X."
+                f"Expected {expected_num_features} or {expected_num_features - 1}, got {X.shape[1]}."
             )
 
         if X.shape[1] == expected_num_features - 1:
@@ -325,6 +341,7 @@ class BaseLinear(ABC):
 
         return self._make_prediction(X.values, self.weights)
 
+    @requires_fit
     def get_best_score(self):
         """
         Return the last value of the metric after the model has been trained.
